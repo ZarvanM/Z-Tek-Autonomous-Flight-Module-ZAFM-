@@ -12,8 +12,7 @@ STRICTLY not for safety-critical/unsafe/hazardous applications.
 
 Licensed under: CC BY-NC-SA
 
-Disclaimer: Software is provided as-is, we make absolutely no claim or warranty towards its safety and reliability. It is purely an evaluation tool for advanced computing applications with microcontrollers.
-Users acknowledge and agree that the use of the Software involves inherent risks, including but not limited to the risk of hardware damage, injury, or loss of property. 
+
 Users assume all risks associated with the use of ZarvanM's AHRS-PID algorithm and software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -24,13 +23,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-
-
-
-
-
 *///////////////////////////////////////////////
 ////////////////////////////////////////////////
+
+
 #include <BMP280_DEV.h>                           // Include the BMP280_DEV.h library
 
 float temperature, pressure, altitude, adjustment,corrected_alt=0;            // Create the temperature, pressure and altitude variables
@@ -41,24 +37,22 @@ void setup()
   Serial.begin(115200);  
   while(!Serial)
   {
-
-  }                         // Initialise the serial port
-  bmp280.begin(0x76);                                 // Default initialisation, place the BMP280 into SLEEP_MODE 
-  bmp280.setPresOversampling(OVERSAMPLING_X16);    // Set the pressure oversampling to X4
-  bmp280.setTempOversampling(OVERSAMPLING_X16);    // Set the temperature oversampling to X1
-  bmp280.setIIRFilter(IIR_FILTER_8);              // Set the IIR filter to setting 4
-  bmp280.setTimeStandby(TIME_STANDBY_05MS);     // Set the standby time to 2 seconds
-  bmp280.setSeaLevelPressure(1009);
-
-
-delay(1000);
-
+  }  
+  
+  bmp280.begin(0x76);                    
+  //params optimized for indoor+outdoor testing, 1m accuracy easily attainable. DO NOT CHANGE ARBITRARILY!
+  bmp280.setPresOversampling(OVERSAMPLING_X16);    
+  bmp280.setTempOversampling(OVERSAMPLING_X16);    
+  bmp280.setIIRFilter(IIR_FILTER_8);              
+  bmp280.setTimeStandby(TIME_STANDBY_05MS);     
+  bmp280.setSeaLevelPressure(1009);              
+  
+  delay(1000);
 
   bmp280.startForcedConversion();                 // Start BMP280 continuous conversion in NORMAL_MODE 
   delay(100);
   bmp280.getCurrentMeasurements(temperature, pressure, altitude);    // Check if the measurement is complete   
     adjustment = altitude;
-
 
     Serial.print(temperature);                    // Display the results    
     Serial.print(F("*C   "));
@@ -67,29 +61,16 @@ delay(1000);
     Serial.print(adjustment);
     Serial.println(F("m")); 
     delay(3500); 
-  
-
-
-
-
 }
 
 void loop() 
 {
-
-
-
-
-  bmp280.startForcedConversion();                 // Start BMP280 continuous conversion in NORMAL_MODE 
-  bmp280.getMeasurements(temperature, pressure, altitude);    // Check if the measurement is complete
+  bmp280.startForcedConversion();                 
+  bmp280.getMeasurements(temperature, pressure, altitude);    
+  //corrected_alt here refers to a pseudo ground level determination. Vital for ANY multirotor application.
+  corrected_alt = altitude - adjustment;
   
-    
-    corrected_alt = altitude - adjustment;
-
-
-
-
-    Serial.print(temperature);                    // Display the results    
+    Serial.print(temperature);                    
     Serial.print(F("*C   "));
     Serial.print(pressure);    
     Serial.print(F("hPa   "));
