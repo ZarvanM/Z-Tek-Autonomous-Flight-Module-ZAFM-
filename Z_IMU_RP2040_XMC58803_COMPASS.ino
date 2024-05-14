@@ -1,16 +1,51 @@
-/*!
- * @file getCompassdata.ino
- * @brief Output the compass data
+/*
+original library example notes:
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @license     The MIT License (MIT)
  * @author      [dexian.huang](952838602@qq.com)
- * @version  V1.0
- * @date  2017-7-3
- * @url https://github.com/DFRobot/DFRobot_QMC5883
  */
+
+
+/*
+zarvan's custom implementation notes:
+
+Zarvan Movdawalla
+Version 0.1
+QMC5883 , RP2040
+CF + AHRS 
+DUAL CORE COMPATIBLE
+
+STRICTLY not for commercial use. 
+STRICTLY not for safety-critical/unsafe/hazardous applications.
+
+Licensed under: MIT
+
+Disclaimer: Software is provided as-is, we make absolutely no claim or warranty towards its safety and reliability. It is purely an evaluation tool for advanced computing applications with microcontrollers.
+Users acknowledge and agree that the use of the Software involves inherent risks, including but not limited to the risk of hardware damage, injury, or loss of property. 
+Users assume all risks associated with the use of ZarvanM's AHRS-PID algorithm and software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
+
+
+
+*/
+
+
+
+
+
 #include <DFRobot_QMC5883.h>
 
-DFRobot_QMC5883 compass(&Wire, /*I2C addr*/QMC5883_ADDRESS);
+DFRobot_QMC5883 compass(&Wire, QMC5883_ADDRESS);
 
 void setup()
 {
@@ -21,9 +56,6 @@ void setup()
     delay(500);
   }
 
-
-
-  
     Serial.println("Initialize QMC5883");
      compass.setRange(QMC5883_RANGE_2GA);
     // Serial.print("compass range is:");
@@ -46,13 +78,6 @@ void setup()
 }
 void loop()
 {
-  /**
-   * @brief  Set declination angle on your location and fix heading
-   * @n      You can find your declination on: http://magnetic-declination.com/
-   * @n      (+) Positive or (-) for negative
-   * @n      For Bytom / Poland declination angle is 4'26E (positive)
-   * @n      Formula: (deg + (min / 60.0)) / (180 / PI);
-   */
   float declinationAngle = (0.0 + (0.0 / 60.0)) / (180 / PI);
   compass.setDeclinationAngle(declinationAngle);
   sVector_t mag = compass.readRaw();
