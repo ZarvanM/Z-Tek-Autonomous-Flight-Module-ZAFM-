@@ -1,1 +1,1 @@
-Central repo for all code pertaining to MPSTME A.S.L.S., a voluntary collegiate venture to develop real world aerospace and aviation tools and software.
+UAV and model aircraft stabilization code written by Zarvan Movdawalla and Team, from MPSTME Mumbai.
