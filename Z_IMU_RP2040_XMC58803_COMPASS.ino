@@ -3,10 +3,8 @@ original library example notes:
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @license     The MIT License (MIT)
  * @author      [dexian.huang](952838602@qq.com)
- */
-
-
-/*
+*/
+/* ************************************************************************************** */
 zarvan's custom implementation notes:
 
 Zarvan Movdawalla
