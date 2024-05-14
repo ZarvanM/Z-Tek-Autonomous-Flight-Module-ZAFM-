@@ -35,14 +35,6 @@ SOFTWARE.
 */
 
 
-
-
-*/
-
-
-
-
-
 #include <DFRobot_QMC5883.h>
 
 DFRobot_QMC5883 compass(&Wire, QMC5883_ADDRESS);
