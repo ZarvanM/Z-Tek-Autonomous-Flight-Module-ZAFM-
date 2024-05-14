@@ -32,9 +32,8 @@ SOFTWARE.
 *///////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-#include <Wire.h>
-#include <EEPROM.h>
 
+#include <Wire.h>
 
 int gyro_x, gyro_y, gyro_z;
 long acc_x, acc_y, acc_z, acc_total_vector;
@@ -50,17 +49,8 @@ float angle_pitch_output, angle_roll_output;
 int pitch, roll = 0;
 float gyro_x_telem, gyro_y_telem = 0;
 
-int freeheap = 0;
-int usedheap = 0;
-
-
-
-
-
-int error = 0;
-
-
-
+float gy_pitch_bias = 0.999;
+float gy_roll_bias  = 0.999;
 
 
 int opfreq = 0;
@@ -68,7 +58,6 @@ int opfreq = 0;
 void setup() 
 {
   Wire.begin();  
-  EEPROM.begin(512); 
   Serial.begin(115200);  
     while (!Serial)
     {
@@ -91,9 +80,6 @@ void setup()
   
 
 
-
-  
-  error = EEPROM.read(0);
   
   for (int cal_int = 0; cal_int < 1500 ; cal_int ++)
   {                 
@@ -118,13 +104,8 @@ void setup()
   delay(3500);
 
 
-  rp2040.wdt_begin(50);
+  rp2040.wdt_begin(500);
   loop_timer = micros();                                               //Reset the loop timer
-}
-
-void setup1() 
-{
-   
 }
 
 
@@ -137,7 +118,7 @@ void loop(){
   gyro_z -= gyro_z_cal;                                                
 
   angle_pitch += gyro_x * 0.0000611;                                   
-  angle_roll += gyro_y * 0.0000611;                                   
+  angle_roll  += gyro_y * 0.0000611;                                   
   
   gyro_x_telem = gyro_x / 65.5; 
   gyro_y_telem = gyro_y / 65.5; 
@@ -156,9 +137,10 @@ void loop(){
   angle_pitch_acc -= -1.0;                                              
   angle_roll_acc -= -3.0;                                               
 
-  if(set_gyro_angles){                                                 
-    angle_pitch = angle_pitch * 1;    
-    angle_roll = angle_roll * 1;
+  if(set_gyro_angles)
+  {            
+    angle_pitch = angle_pitch * gy_pitch_bias + angle_pitch_acc * (1 - gy_pitch_bias);     //Correct the drift of the gyro pitch angle with the accelerometer pitch angle
+    angle_roll  = angle_roll  * gy_roll_bias  + angle_roll_acc  * (1 - gy_roll_bias) ;  
   }
   else{                                                               
     angle_pitch = angle_pitch_acc;                                     
@@ -171,23 +153,15 @@ void loop(){
   
   temperature = ((temperature+521)/340) + 35;
 
-  Serial.print(90);
-  Serial.print(",");
-  Serial.print(-90);   
-  Serial.print(",");                                           
-  Serial.print(angle_pitch_output,0);
-  Serial.print(",");
-  Serial.print(angle_roll_output,0);
-  Serial.print(",");
-  Serial.println(temperature);
-
-
 
   while(micros() - loop_timer < 4000)
   {
       aux_work(); 
-  }                                 
-  loop_timer = micros();                                              
+  }           
+  
+  rp2040.wdt_reset();                  
+  loop_timer = micros(); 
+                                               
 }
 
 
@@ -213,18 +187,21 @@ void aux_work()
   //Serial.println(".");
   pitch = angle_pitch_output;
   roll  = angle_roll_output;
+  
+  Serial.print(90);
+  Serial.print(",");
+  Serial.print(-90);   
+  Serial.print(",");                                           
+  Serial.print(angle_pitch_output,0);
+  Serial.print(",");
+  Serial.print(angle_roll_output,0);
+  Serial.print(",");
+  Serial.println(temperature);
 
 
-  //if (abs(pitch) > 70)
-{
- //rp2040.reboot();  
-}
-  //else
-{
 }
 
-rp2040.wdt_reset();
-}
+
 
 void setup_mpu_6050_registers(){
   Wire.beginTransmission(0x68);                                        //Start communicating with the MPU-6050
@@ -240,17 +217,6 @@ void setup_mpu_6050_registers(){
   Wire.write(0x08);                                                    //Set the requested starting register
   Wire.endTransmission();                                              //End the transmission
 }
-
-
-
-void loop1() 
-{
-   //digitalWrite(25, HIGH);
-   //delay(500);
-   //digitalWrite(25,LOW);
-   //delay(100);    
-}
-
 
 
 
